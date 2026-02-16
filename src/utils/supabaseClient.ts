@@ -1,11 +1,14 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-// This will now only try to create the client if the strings aren't empty
+// This 'if' check prevents the Vercel build from crashing
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error("Supabase environment variables are missing! Check your .env.local file.")
+  console.warn("Build-time warning: Supabase keys not found. Using placeholders.")
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co', 
+  supabaseAnonKey || 'placeholder-key'
+)
