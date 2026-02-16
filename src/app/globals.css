@@ -22,3 +22,16 @@ main, .relative, button {
   touch-action: none; /* This tells the browser: 'I'll handle the movement, don't scroll' */
   user-select: none;  /* Prevents the 'copy/paste' menu from popping up */
 }
+html, body {
+  /* Prevents the 'bounce' effect on iOS and pull-to-refresh on Android */
+  fixed: fixed;
+  overflow: hidden;
+  overscroll-behavior-y: none; 
+  touch-action: none;
+}
+
+main {
+  /* Ensures the main game area is the priority for touches */
+  touch-action: none;
+  -webkit-user-select: none;
+}

@@ -36,7 +36,7 @@ export default function BioluminescentSea() {
           y: Math.random() * canvas.height,
           size: Math.random() * 2 + 0.5,
           vx: (Math.random() - 0.5) * 0.2,
-          vy: (Math.random() - 0.5) * 0.2 - 0.1, // Drifts upward
+          vy: (Math.random() - 0.5) * 0.2 - 0.1, 
           alpha: Math.random() * 0.5 + 0.1,
           color: Math.random() > 0.8 ? '#4dfcff' : '#00e5ff'
         })
@@ -48,12 +48,10 @@ export default function BioluminescentSea() {
     }
 
     const render = () => {
-      // Clear Ocean Gradient
       const grad = ctx.createRadialGradient(canvas.width/2, 0, 0, canvas.width/2, 0, canvas.height)
       grad.addColorStop(0, '#005f73'); grad.addColorStop(0.4, '#021a26'); grad.addColorStop(1, '#001219')
       ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-      // Particles
       particles.forEach(p => {
         p.x += p.vx; p.y += p.vy
         if (p.y < 0) p.y = canvas.height
@@ -61,7 +59,6 @@ export default function BioluminescentSea() {
         ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill()
       })
 
-      // Click Ripples
       ctx.lineWidth = 1.5
       ripples.forEach((ripple, i) => {
         ripple.r += ripple.velocity; ripple.opacity -= 0.007
@@ -73,31 +70,37 @@ export default function BioluminescentSea() {
       animationFrameId = requestAnimationFrame(render)
     }
 
+    // Passive listeners don't block the main thread
     const handleMouseMove = (e: MouseEvent) => {
-      // No more cursor ripples created here
       mouseX.set((e.clientX / window.innerWidth - 0.5) * 15)
       mouseY.set((e.clientY / window.innerHeight - 0.5) * 15)
     }
 
     const handleClick = (e: MouseEvent) => {
-      for(let i=0; i<3; i++) setTimeout(() => createRipple(e.clientX, e.clientY), i * 180)
+      // Only create ripple if the click isn't on a game button/letter
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'CANVAS' || target.tagName === 'BODY' || target.tagName === 'MAIN') {
+        for(let i=0; i<3; i++) setTimeout(() => createRipple(e.clientX, e.clientY), i * 180)
+      }
     }
 
     window.addEventListener('resize', resize)
-    window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('mousedown', handleClick)
+    window.addEventListener('mousemove', handleMouseMove, { passive: true })
+    window.addEventListener('mousedown', handleClick, { passive: true })
     resize(); render()
 
     return () => {
-      window.removeEventListener('resize', resize); window.removeEventListener('mousemove', handleMouseMove)
-      window.removeEventListener('mousedown', handleClick); cancelAnimationFrame(animationFrameId)
+      window.removeEventListener('resize', resize); 
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mousedown', handleClick); 
+      cancelAnimationFrame(animationFrameId)
     }
   }, [mouseX, mouseY])
 
   return (
-    <div className="fixed inset-0 z-0 bg-[#001219] pointer-events-none overflow-hidden">
-      <motion.div style={{ x: springX, y: springY }} className="absolute inset-0 opacity-10 mix-blend-overlay">
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/water.png')] scale-[2]" />
+    <div className="fixed inset-0 z-[-1] bg-[#001219] pointer-events-none overflow-hidden">
+      <motion.div style={{ x: springX, y: springY }} className="absolute inset-0 opacity-10 mix-blend-overlay pointer-events-none">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/water.png')] scale-[2] pointer-events-none" />
       </motion.div>
       <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" />
     </div>

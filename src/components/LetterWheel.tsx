@@ -25,10 +25,8 @@ export default function LetterWheel({ letters, onWordSubmit }: { letters: string
     const element = document.elementFromPoint(clientX, clientY)
     if (!element) return
 
-    // FIX: Check current element OR its parent for the index (in case we hit the letter text)
     const indexAttr = element.getAttribute('data-index') || element.parentElement?.getAttribute('data-index')
     
-    // TypeScript Fix: Ensure indexAttr is a string before calling parseInt
     if (typeof indexAttr === 'string') {
       const i = parseInt(indexAttr, 10)
       setSelectedIndices(prev => {
@@ -38,27 +36,25 @@ export default function LetterWheel({ letters, onWordSubmit }: { letters: string
     }
   }
 
-  const handleEnd = () => {
-    if (!isDragging.current) return
-    isDragging.current = false
-    const word = selectedIndices.map(i => letters[i]).join('').toUpperCase()
-    if (word.length >= 3) onWordSubmit(word)
-    setSelectedIndices([])
-  }
-
   return (
     <div 
-      className="relative w-64 h-64 select-none z-[60]"
-      style={{ touchAction: 'none' }} 
-      onMouseUp={handleEnd}
-      onMouseLeave={handleEnd}
-      onMouseMove={(e) => handleMove(e.clientX, e.clientY)}
-      onTouchMove={(e) => {
-        // Prevents any browser-level dragging/scrolling while playing
-        if (e.cancelable) e.preventDefault() 
-        handleMove(e.touches[0].clientX, e.touches[0].clientY)
+      className="relative w-64 h-64 select-none z-[70] touch-none"
+      onPointerMove={(e) => handleMove(e.clientX, e.clientY)}
+      onPointerUp={(e) => {
+        if (!isDragging.current) return
+        isDragging.current = false
+        
+        const word = selectedIndices.map(i => letters[i]).join('').toUpperCase()
+        if (word.length >= 3) onWordSubmit(word)
+        
+        setSelectedIndices([])
+        
+        // FIX: Casting the target to Element to satisfy TypeScript
+        const target = e.target as Element;
+        if (target && 'releasePointerCapture' in target) {
+          (target as any).releasePointerCapture(e.pointerId);
+        }
       }}
-      onTouchEnd={handleEnd}
     >
       <svg className="absolute inset-0 w-full h-full pointer-events-none z-10">
         <motion.polyline
@@ -72,17 +68,22 @@ export default function LetterWheel({ letters, onWordSubmit }: { letters: string
         <div
           key={`${letters[i]}-${i}`} 
           data-index={i} 
-          onMouseDown={(e) => { e.preventDefault(); isDragging.current = true; setSelectedIndices([i]); }}
-          onTouchStart={(e) => { 
-            isDragging.current = true; 
-            setSelectedIndices([i]); 
+          onPointerDown={(e) => {
+            // FIX: Casting the target to Element for Pointer Capture
+            const target = e.target as Element;
+            if (target && 'setPointerCapture' in target) {
+              (target as any).setPointerCapture(e.pointerId);
+            }
+            isDragging.current = true
+            setSelectedIndices([i])
           }}
-          className={`absolute w-16 h-16 rounded-full border-2 flex items-center justify-center text-2xl font-black transition-all cursor-pointer ${
-            selectedIndices.includes(i) ? 'bg-blue-500 border-white scale-125 z-30 shadow-[0_0_15px_rgba(59,130,246,0.4)]' : 'bg-white/10 border-white/20 text-white z-20'
+          className={`absolute w-16 h-16 rounded-full border-2 flex items-center justify-center text-2xl font-black transition-all cursor-pointer pointer-events-auto ${
+            selectedIndices.includes(i) 
+              ? 'bg-blue-500 border-white scale-125 z-30 shadow-[0_0_20px_#3b82f6]' 
+              : 'bg-white/10 border-white/20 text-white z-20'
           } backdrop-blur-xl`}
           style={{ left: coord.x - 32, top: coord.y - 32 }}
         >
-          {/* pointer-events-none ensures the touch always registers on the div with the index */}
           <span className="pointer-events-none">{letters[i]}</span>
         </div>
       ))}
