@@ -1,5 +1,16 @@
+# Dependencies
 node_modules/
+
+# Next.js build files
 .next/
-.vscode/
-.env
+out/
+
+# System files (Mac specific)
 .DS_Store
+
+# Local environment variables (Don't leak your keys!)
+.env
+.env.local
+
+# IDE settings
+.vscode/
