@@ -34,3 +34,13 @@ body {
 .animate-shake {
   animation: shake 0.4s ease-in-out;
 }
+/* Add this to your global CSS */
+canvas, .particle-container {
+  pointer-events: none;
+  z-index: 0;
+}
+
+button, a {
+  position: relative;
+  z-index: 10;
+}

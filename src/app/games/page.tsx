@@ -1,82 +1,43 @@
 'use client'
+export const dynamic = 'force-dynamic'
+import { useState } from 'react'
 
-import { useState, useMemo, useCallback } from 'react'
-import { AnimatePresence } from 'framer-motion'
-import LetterWheel from '../../components/LetterWheel'
-import CircularTimer from '../../components/CircularTimer'
-import WordPreview from '../../components/WordPreview'
-import RoundOverlay from '../../components/RoundOverlay'
-import FinalScore from '../../components/FinalScore'
+export default function WordGame() {
+  const [selectedLetters, setSelectedLetters] = useState<string[]>([])
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")
 
-const PUZZLE_BANK = [
-  { letters: ['A', 'C', 'R', 'E'], words: ['ACE', 'ARC', 'ARE', 'CAR', 'ERA', 'CARE', 'RACE', 'ACRE'] },
-  { letters: ['O', 'A', 'T', 'S'], words: ['ART', 'OAT', 'SAT', 'TAO', 'OATS', 'STAR', 'TARS', 'ARTS', 'SOAR'] }
-]
-
-export default function ZenWordBattle() {
-  const [gameState, setGameState] = useState<'IDLE' | 'PLAYING' | 'FINISHED'>('IDLE')
-  const [round, setRound] = useState(1)
-  const [currentPlayer, setCurrentPlayer] = useState(1)
-  const [scores, setScores] = useState({ p1: 0, p2: 0 })
-  const [foundWords, setFoundWords] = useState<string[]>([])
-  const [showOverlay, setShowOverlay] = useState(true)
-
-  const currentLevel = useMemo(() => {
-    const idx = (round - 1) * 2 + (currentPlayer - 1)
-    return PUZZLE_BANK[idx % PUZZLE_BANK.length]
-  }, [round, currentPlayer])
-
-  const allPossibleWords = useMemo(() => currentLevel.words.map(w => w.toUpperCase()), [currentLevel])
-
-  const handleTurnEnd = useCallback(() => {
-    setGameState('IDLE')
-    setFoundWords([])
-    if (currentPlayer === 2) {
-      if (round === 4) setGameState('FINISHED')
-      else { setRound(r => r + 1); setCurrentPlayer(1); setShowOverlay(true); }
-    } else {
-      setCurrentPlayer(2); setShowOverlay(true);
-    }
-  }, [currentPlayer, round])
-
-  const handleWordSubmit = (word: string) => {
-    const submitted = word.toUpperCase()
-    if (allPossibleWords.includes(submitted) && !foundWords.includes(submitted)) {
-      const nextFound = [...foundWords, submitted]
-      setFoundWords(nextFound)
-      setScores(prev => ({ ...prev, [currentPlayer === 1 ? 'p1' : 'p2']: prev[currentPlayer === 1 ? 'p1' : 'p2'] + submitted.length }))
-
-      // THE INSTANT TIMER FREEZE
-      if (nextFound.length === allPossibleWords.length) {
-        setGameState('IDLE') // This freezes the CircularTimer
-        setTimeout(() => handleTurnEnd(), 1000)
-      }
-    }
+  const handleSelect = (letter: string) => {
+    // Using functional updates to ensure state is always fresh
+    setSelectedLetters(prev => prev.includes(letter) 
+      ? prev.filter(l => l !== letter) 
+      : [...prev, letter]
+    )
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-between p-8 bg-black overflow-hidden select-none">
-      <div className="w-full max-w-md flex justify-between items-center">
-        <div className={`p-4 rounded-3xl border ${currentPlayer === 1 ? 'border-blue-400' : 'opacity-40'}`}>
-          <p className="text-3xl font-black text-white">{scores.p1}</p>
-        </div>
-
-        <CircularTimer isActive={gameState === 'PLAYING'} duration={60} onTimeUp={handleTurnEnd} />
-
-        <div className={`p-4 rounded-3xl border text-right ${currentPlayer === 2 ? 'border-purple-400' : 'opacity-40'}`}>
-          <p className="text-3xl font-black text-white">{scores.p2}</p>
-        </div>
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-black">
+      <h1 className="mb-8 text-4xl font-bold text-cyan-400">ZEN WORD</h1>
+      
+      <div className="flex flex-wrap justify-center gap-2 max-w-2xl">
+        {alphabet.map((letter) => (
+          <button
+            key={letter}
+            // onPointerDown is the "Gold Standard" for cross-device support
+            onPointerDown={() => handleSelect(letter)}
+            className={`w-12 h-12 rounded-lg border-2 flex items-center justify-center text-xl font-bold transition-all
+              ${selectedLetters.includes(letter) 
+                ? 'bg-cyan-500 border-white text-white shadow-[0_0_15px_rgba(6,182,212,0.8)]' 
+                : 'bg-transparent border-cyan-900 text-cyan-900 hover:border-cyan-400'
+              }`}
+          >
+            {letter}
+          </button>
+        ))}
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center space-y-12">
-        <WordPreview words={foundWords} targetWords={allPossibleWords} />
-        <LetterWheel letters={currentLevel.letters} onWordSubmit={handleWordSubmit} />
+      <div className="mt-8 text-white text-2xl tracking-widest font-mono">
+        {selectedLetters.join(" ")}
       </div>
-
-      <AnimatePresence>
-        {showOverlay && <RoundOverlay player={currentPlayer} round={round} onStart={() => { setShowOverlay(false); setGameState('PLAYING'); }} />}
-        {gameState === 'FINISHED' && <FinalScore scores={scores} />}
-      </AnimatePresence>
-    </main>
+    </div>
   )
 }
