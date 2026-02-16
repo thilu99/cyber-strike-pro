@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 @theme inline {
@@ -12,18 +12,15 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  overflow: hidden; /* Prevents scrollbars from breaking your game layout */
 }
+
+/* --- Visual Effects --- */
 @keyframes shake {
   0% { transform: translateX(0); }
   25% { transform: translateX(-5px); }
@@ -31,65 +28,40 @@ body {
   75% { transform: translateX(-5px); }
   100% { transform: translateX(0); }
 }
+
 .animate-shake {
   animation: shake 0.4s ease-in-out;
 }
-/* Add this to your global CSS */
-canvas, .particle-container {
-  pointer-events: none;
-  z-index: 0;
-}
 
-button, a {
-  position: relative;
-  z-index: 10;
-}
-/* Prevent the phone from bouncing/scrolling when playing games */
-.touch-none {
-  touch-action: none;
-}
+/* --- Layering & Input Handling (The Fix) --- */
 
-/* Ensure your background particles don't "steal" your touches */
+/* 1. Push particles and 3D backgrounds behind everything */
 #tsparticles, 
-canvas {
-  pointer-events: none;
-  z-index: 0;
+canvas, 
+.particle-container {
+  pointer-events: none !important; /* Finger/Mouse passes through to the game */
+  z-index: -1 !important;
+  position: fixed !important;
+  top: 0;
+  left: 0;
 }
 
-/* Ensure game elements are above the background and clickable */
+/* 2. Bring game content to the very front */
+main, 
+.game-container, 
 button, 
-.game-container,
-[onPointerDown] {
+.relative {
   position: relative;
   z-index: 10;
-  pointer-events: auto;
-}
-/* Make particles sit BEHIND the game */
-#tsparticles, canvas {
-  pointer-events: none !important;
-  z-index: -1 !important;
-  position: fixed !important;
+  pointer-events: auto; /* Ensures letters can be dragged */
 }
 
-/* Make sure buttons and game areas are on top */
-button, .grid, main {
-  position: relative;
-  z-index: 10;
-}
-/* Push particles behind everything */
-#tsparticles, canvas {
-  pointer-events: none !important;
-  z-index: -1 !important;
-  position: fixed !important;
-}
-
-/* Bring game content to the front */
-.grid, button, main {
-  position: relative;
-  z-index: 10;
-}
-
-/* Prevent mobile browser gestures from interrupting the game */
+/* 3. Utility classes for better game feel */
 .touch-none {
-  touch-action: none;
+  touch-action: none; /* Prevents mobile browsers from scrolling/bouncing */
+}
+
+.select-none {
+  user-select: none; /* Prevents annoying text highlighting while dragging letters */
+  -webkit-user-select: none;
 }
