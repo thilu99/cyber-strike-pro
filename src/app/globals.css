@@ -1,37 +1,42 @@
 @import "tailwindcss";
 
-body {
+/* 1. Reset and Lock Screen */
+html, body {
   background: black;
   color: white;
   margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
+  /* Prevents the 'bounce' effect on iOS and pull-to-refresh on Android */
+  overscroll-behavior: none; 
+  touch-action: none;
+  /* Standard way to prevent text selection during games */
+  user-select: none;
+  -webkit-user-select: none;
 }
 
-/* Ensure the game is always clickable and background is behind */
-canvas, #tsparticles {
+/* 2. Background Layers */
+/* Ensure background elements stay behind and don't steal clicks */
+canvas, #tsparticles, .bioluminescent-sea {
   pointer-events: none !important;
   z-index: -1 !important;
   position: fixed !important;
+  inset: 0;
 }
 
+/* 3. Interactive Layers */
 main, .relative, button {
   z-index: 10;
   position: relative;
-}
-.letter-tile {
-  touch-action: none; /* This tells the browser: 'I'll handle the movement, don't scroll' */
-  user-select: none;  /* Prevents the 'copy/paste' menu from popping up */
-}
-html, body {
-  /* Prevents the 'bounce' effect on iOS and pull-to-refresh on Android */
-  fixed: fixed;
-  overflow: hidden;
-  overscroll-behavior-y: none; 
-  touch-action: none;
+  /* Ensure interactive elements actually allow pointer events */
+  pointer-events: auto;
 }
 
-main {
-  /* Ensures the main game area is the priority for touches */
-  touch-action: none;
-  -webkit-user-select: none;
+/* 4. Game Specific Utilities */
+.letter-tile {
+  touch-action: none; 
+  user-select: none;
+  -webkit-user-drag: none;
 }
