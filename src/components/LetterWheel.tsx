@@ -22,20 +22,17 @@ export default function LetterWheel({ letters, onWordSubmit }: { letters: string
   const handleMove = (clientX: number, clientY: number) => {
     if (!isDragging.current) return
     
-    // We look for the element under the finger/cursor
     const element = document.elementFromPoint(clientX, clientY)
     if (!element) return
 
-    // We look specifically for the div or the span inside it that carries our index
+    // FIX: Check current element OR its parent for the index (in case we hit the letter text)
     const indexAttr = element.getAttribute('data-index') || element.parentElement?.getAttribute('data-index')
     
-    if (indexAttr !== null) {
-      const i = parseInt(indexAttr)
+    // TypeScript Fix: Ensure indexAttr is a string before calling parseInt
+    if (typeof indexAttr === 'string') {
+      const i = parseInt(indexAttr, 10)
       setSelectedIndices(prev => {
-        if (!prev.includes(i)) {
-          // You could add a playSound('hover') here if you want audio feedback
-          return [...prev, i]
-        }
+        if (!prev.includes(i)) return [...prev, i]
         return prev
       })
     }
@@ -52,12 +49,13 @@ export default function LetterWheel({ letters, onWordSubmit }: { letters: string
   return (
     <div 
       className="relative w-64 h-64 select-none z-[60]"
-      style={{ touchAction: 'none' }} // This is the most important line for mobile
+      style={{ touchAction: 'none' }} 
       onMouseUp={handleEnd}
       onMouseLeave={handleEnd}
       onMouseMove={(e) => handleMove(e.clientX, e.clientY)}
       onTouchMove={(e) => {
-        // We handle the move and manually tell the browser not to scroll
+        // Prevents any browser-level dragging/scrolling while playing
+        if (e.cancelable) e.preventDefault() 
         handleMove(e.touches[0].clientX, e.touches[0].clientY)
       }}
       onTouchEnd={handleEnd}
@@ -76,8 +74,6 @@ export default function LetterWheel({ letters, onWordSubmit }: { letters: string
           data-index={i} 
           onMouseDown={(e) => { e.preventDefault(); isDragging.current = true; setSelectedIndices([i]); }}
           onTouchStart={(e) => { 
-            // Stop propagation ensures the touch doesn't bubble up to the main page
-            e.stopPropagation(); 
             isDragging.current = true; 
             setSelectedIndices([i]); 
           }}
@@ -86,7 +82,7 @@ export default function LetterWheel({ letters, onWordSubmit }: { letters: string
           } backdrop-blur-xl`}
           style={{ left: coord.x - 32, top: coord.y - 32 }}
         >
-          {/* We use pointer-events-none here so the touch logic always hits the parent div with the data-index */}
+          {/* pointer-events-none ensures the touch always registers on the div with the index */}
           <span className="pointer-events-none">{letters[i]}</span>
         </div>
       ))}
