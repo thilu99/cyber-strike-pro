@@ -19,7 +19,7 @@ export default function WordGame() {
         CYBER WORD
       </h1>
       
-      {/* Restore your original grid structure */}
+      {/* Restoring your 6-column grid and neon borders */}
       <div className="grid grid-cols-6 gap-4 max-w-2xl p-8 rounded-3xl border border-cyan-900/30 bg-black/40 backdrop-blur-sm">
         {alphabet.map((letter) => (
           <button

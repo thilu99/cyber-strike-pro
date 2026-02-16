@@ -39,7 +39,7 @@ export default function BowlingScene() {
         <Suspense fallback={null}>
           <Physics>
             <Ball />
-            {/* Added the floor/lane back */}
+            {/* Putting the floor/lane back into the world */}
             <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
               <planeGeometry args={[20, 100]} />
               <meshStandardMaterial color="#0a0a0a" />

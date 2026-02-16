@@ -76,3 +76,20 @@ button, .grid, main {
   position: relative;
   z-index: 10;
 }
+/* Push particles behind everything */
+#tsparticles, canvas {
+  pointer-events: none !important;
+  z-index: -1 !important;
+  position: fixed !important;
+}
+
+/* Bring game content to the front */
+.grid, button, main {
+  position: relative;
+  z-index: 10;
+}
+
+/* Prevent mobile browser gestures from interrupting the game */
+.touch-none {
+  touch-action: none;
+}
