@@ -1,67 +1,20 @@
 @import "tailwindcss";
 
-:root {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: black;
+  color: white;
   margin: 0;
-  overflow: hidden; /* Prevents scrollbars from breaking your game layout */
+  overflow: hidden;
 }
 
-/* --- Visual Effects --- */
-@keyframes shake {
-  0% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  50% { transform: translateX(5px); }
-  75% { transform: translateX(-5px); }
-  100% { transform: translateX(0); }
-}
-
-.animate-shake {
-  animation: shake 0.4s ease-in-out;
-}
-
-/* --- Layering & Input Handling (The Fix) --- */
-
-/* 1. Push particles and 3D backgrounds behind everything */
-#tsparticles, 
-canvas, 
-.particle-container {
-  pointer-events: none !important; /* Finger/Mouse passes through to the game */
+/* Ensure the game is always clickable and background is behind */
+canvas, #tsparticles {
+  pointer-events: none !important;
   z-index: -1 !important;
   position: fixed !important;
-  top: 0;
-  left: 0;
 }
 
-/* 2. Bring game content to the very front */
-main, 
-.game-container, 
-button, 
-.relative {
-  position: relative;
+main, .relative, button {
   z-index: 10;
-  pointer-events: auto; /* Ensures letters can be dragged */
-}
-
-/* 3. Utility classes for better game feel */
-.touch-none {
-  touch-action: none; /* Prevents mobile browsers from scrolling/bouncing */
-}
-
-.select-none {
-  user-select: none; /* Prevents annoying text highlighting while dragging letters */
-  -webkit-user-select: none;
+  position: relative;
 }
