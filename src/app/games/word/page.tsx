@@ -147,7 +147,10 @@ export default function ZenWordBattle() {
   if (isLoading) return <div className="min-h-screen bg-[#001219] flex items-center justify-center"><div className="w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin" /></div>
 
   return (
-    <main className={`min-h-screen text-white p-8 flex flex-col items-center justify-between select-none relative overflow-hidden transition-all duration-500 ${isWrong ? 'bg-red-900/30' : 'bg-transparent'}`}>
+    <main 
+      className={`min-h-screen text-white p-8 flex flex-col items-center justify-between select-none relative overflow-hidden transition-all duration-500 ${isWrong ? 'bg-red-900/30' : 'bg-transparent'}`}
+      style={{ touchAction: 'none' }} // FIX: Prevents mobile pull-to-refresh and scroll interference
+    >
       
       <BioluminescentSea />
 
@@ -218,6 +221,7 @@ export default function ZenWordBattle() {
               </div>
 
               <div className="relative">
+                {/* LetterWheel is where the drag magic happens - ensured main container blocks scroll interference */}
                 <LetterWheel letters={displayLetters} onWordSubmit={handleWordSubmit} />
                 <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 flex gap-4">
                     <button onClick={handleShuffle} className="p-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/40"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/><path d="m18 14 4 4-4 4"/></svg></button>

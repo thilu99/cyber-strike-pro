@@ -68,12 +68,12 @@ function Ball({ power, isCharging, onLaunch, type, resetKey }: { power: number; 
   const mouseX = useRef(0)
 
   useEffect(() => {
-    const handleMove = (e: MouseEvent) => { 
-        // Normalize mouse pos to -1 to 1
+    // Changed to pointermove for cross-device support
+    const handleMove = (e: PointerEvent) => { 
         mouseX.current = (e.clientX / window.innerWidth) * 2 - 1 
     }
-    window.addEventListener('mousemove', handleMove)
-    return () => window.removeEventListener('mousemove', handleMove)
+    window.addEventListener('pointermove', handleMove)
+    return () => window.removeEventListener('pointermove', handleMove)
   }, [])
 
   useEffect(() => {
@@ -83,7 +83,6 @@ function Ball({ power, isCharging, onLaunch, type, resetKey }: { power: number; 
 
   useFrame(() => {
     if (hasThrown.current) {
-      // Increased Hook Force: $F_x = x_{mouse} \cdot 35$
       api.applyForce([mouseX.current * 35, 0, 0], [0, 0, 0])
     }
   })
@@ -175,8 +174,9 @@ export default function BowlingScene() {
 
   return (
     <div className="w-full h-screen bg-black relative select-none overflow-hidden" 
-         onMouseDown={() => { if(!isGameOver && !showSummary) setIsCharging(true); }} 
-         onMouseUp={() => setIsCharging(false)}>
+         style={{ touchAction: 'none' }} // Stops mobile scroll from breaking the game
+         onPointerDown={() => { if(!isGameOver && !showSummary) setIsCharging(true); }} 
+         onPointerUp={() => setIsCharging(false)}>
       
       <Canvas shadows>
         <PerspectiveCamera makeDefault position={[0, 9, 38]} fov={35} />
@@ -216,7 +216,7 @@ export default function BowlingScene() {
         <AnimatePresence>
             {statusMsg && (
                 <motion.div 
-                    key="status-msg-overlay" // Added unique key
+                    key="status-msg-overlay"
                     initial={{ scale: 0 }} 
                     animate={{ scale: 1 }} 
                     exit={{ scale: 0 }} 
@@ -227,7 +227,7 @@ export default function BowlingScene() {
             )}
             {showSummary && !isGameOver && (
                 <motion.div 
-                    key="frame-summary-overlay" // Added unique key
+                    key="frame-summary-overlay"
                     initial={{ opacity: 0, scale: 0.9, y: 20 }} 
                     animate={{ opacity: 1, scale: 1, y: 0 }} 
                     exit={{ opacity: 0 }} 
@@ -257,7 +257,7 @@ export default function BowlingScene() {
       <AnimatePresence>
         {isGameOver && (
           <motion.div 
-            key="game-over-board" // Added unique key
+            key="game-over-board"
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             className="absolute inset-0 z-50 bg-slate-950/95 backdrop-blur-2xl flex flex-col items-center justify-center p-10 text-center"

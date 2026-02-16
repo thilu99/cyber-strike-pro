@@ -18,3 +18,7 @@ main, .relative, button {
   z-index: 10;
   position: relative;
 }
+.letter-tile {
+  touch-action: none; /* This tells the browser: 'I'll handle the movement, don't scroll' */
+  user-select: none;  /* Prevents the 'copy/paste' menu from popping up */
+}
