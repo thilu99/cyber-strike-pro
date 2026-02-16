@@ -64,11 +64,15 @@ button,
   z-index: 10;
   pointer-events: auto;
 }
+/* Make particles sit BEHIND the game */
+#tsparticles, canvas {
+  pointer-events: none !important;
+  z-index: -1 !important;
+  position: fixed !important;
+}
 
-/* Fix for the Word Game: prevents text selection while dragging */
-.select-none {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  ms-user-select: none;
-  user-select: none;
+/* Make sure buttons and game areas are on top */
+button, .grid, main {
+  position: relative;
+  z-index: 10;
 }

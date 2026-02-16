@@ -1,63 +1,44 @@
 'use client'
-export const dynamic = 'force-dynamic'
-import { useState, useRef, useEffect } from 'react'
+export const dynamic = 'force-dynamic';
+import { useState } from 'react';
 
 export default function WordGame() {
-  const [selectedLetters, setSelectedLetters] = useState<string[]>([])
-  const [isDragging, setIsDragging] = useState(false)
-  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")
+  const [selectedLetters, setSelectedLetters] = useState<string[]>([]);
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
-  // We use a Ref to prevent duplicate letters while dragging
-  const currentWord = useRef<string[]>([])
-
-  const startDragging = (letter: string) => {
-    setIsDragging(true)
-    currentWord.current = [letter]
-    setSelectedLetters([letter])
-  }
-
-  const handlePointerEnter = (letter: string) => {
-    if (isDragging && !currentWord.current.includes(letter)) {
-      currentWord.current = [...currentWord.current, letter]
-      setSelectedLetters([...currentWord.current])
-    }
-  }
-
-  const stopDragging = () => {
-    setIsDragging(false)
-    // Here is where you'd eventually validate the word against a dictionary
-    console.log("Word submitted:", currentWord.current.join(""))
-  }
+  const handleSelect = (letter: string) => {
+    setSelectedLetters(prev => prev.includes(letter) 
+      ? prev.filter(l => l !== letter) 
+      : [...prev, letter]
+    );
+  };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-black select-none"
-         onPointerUp={stopDragging} 
-         onPointerLeave={stopDragging}>
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-transparent select-none touch-none">
+      <h1 className="mb-12 text-5xl font-black text-cyan-400 tracking-tighter drop-shadow-[0_0_15px_rgba(34,211,238,0.8)]">
+        CYBER WORD
+      </h1>
       
-      <h1 className="mb-8 text-4xl font-bold text-cyan-400 tracking-tighter">CYBER WORD</h1>
-      
-      <div className="flex flex-wrap justify-center gap-3 max-w-md">
+      {/* Restore your original grid structure */}
+      <div className="grid grid-cols-6 gap-4 max-w-2xl p-8 rounded-3xl border border-cyan-900/30 bg-black/40 backdrop-blur-sm">
         {alphabet.map((letter) => (
-          <div
+          <button
             key={letter}
-            onPointerDown={() => startDragging(letter)}
-            onPointerEnter={() => handlePointerEnter(letter)}
-            // Important for mobile: pointerOver allows detection while finger is down
-            onPointerOver={() => handlePointerEnter(letter)}
-            className={`w-14 h-14 rounded-xl border-2 flex items-center justify-center text-xl font-black cursor-pointer transition-all duration-75 touch-none
+            onPointerDown={() => handleSelect(letter)}
+            className={`w-14 h-14 rounded-xl border-2 flex items-center justify-center text-2xl font-bold transition-all duration-150
               ${selectedLetters.includes(letter) 
-                ? 'bg-cyan-500 border-white text-white scale-110 shadow-[0_0_20px_rgba(6,182,212,0.9)]' 
-                : 'bg-gray-900 border-cyan-900 text-cyan-700'
+                ? 'bg-cyan-500 border-cyan-300 text-white shadow-[0_0_25px_rgba(6,182,212,1)] scale-110' 
+                : 'bg-gray-900/50 border-cyan-900/50 text-cyan-700 hover:border-cyan-400 hover:text-cyan-300'
               }`}
           >
             {letter}
-          </div>
+          </button>
         ))}
       </div>
 
-      <div className="mt-12 h-16 text-cyan-300 text-4xl font-mono tracking-[0.2em] border-b-2 border-cyan-900 px-6">
+      <div className="mt-12 text-cyan-200 text-3xl font-mono tracking-widest min-h-[3rem] border-b-2 border-cyan-900/50 px-8">
         {selectedLetters.join("")}
       </div>
     </div>
-  )
+  );
 }
