@@ -44,3 +44,31 @@ button, a {
   position: relative;
   z-index: 10;
 }
+/* Prevent the phone from bouncing/scrolling when playing games */
+.touch-none {
+  touch-action: none;
+}
+
+/* Ensure your background particles don't "steal" your touches */
+#tsparticles, 
+canvas {
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Ensure game elements are above the background and clickable */
+button, 
+.game-container,
+[onPointerDown] {
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+/* Fix for the Word Game: prevents text selection while dragging */
+.select-none {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  ms-user-select: none;
+  user-select: none;
+}
